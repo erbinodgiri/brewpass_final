@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+input, button, textarea, select { font-family: inherit; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(232,162,75,0.3); border-radius: 3px; }
+
+/* Scan page — mobile optimizations */
+* { -webkit-tap-highlight-color: transparent; }
+.scan-input { font-size: 16px !important; }
+@media (max-width: 480px) { .scan-inner { padding: 1rem !important; } }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes approved-bounce {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pulse { animation: pulse 2s ease-in-out infinite; }
+.approved-in { animation: approved-bounce 0.5s ease-out forwards; }

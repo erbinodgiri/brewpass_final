@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Shop {
+  id            String         @id @default(cuid())
+  name          String
+  address       String?
+  phone         String?
+  email         String         @unique
+  password      String
+  stampGoal     Int            @default(7)
+  reward        String         @default("1 free coffee")
+  qrCode        String?
+  plan          String         @default("free")
+  planExpiresAt DateTime?
+  active        Boolean        @default(true)
+  freeLimit     Int            @default(50)
+  stampLogo     String?
+  shopLogo      String?
+  themeColor    String?        @default("#e8a24b")
+  wifiName      String?
+  wifiPassword  String?
+  wifiType      String?        @default("WPA")
+  wifiHidden    Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  customers     Customer[]
+  stamps        Stamp[]
+  stampRequests StampRequest[]
+  menuItems     MenuItem[]
+  offers        Offer[]
+  waitlistItems WaitlistItem[]
+}
+
+model Customer {
+  id            String         @id @default(cuid())
+  phone         String
+  name          String?
+  createdAt     DateTime       @default(now())
+  shopId        String
+  shop          Shop           @relation(fields: [shopId], references: [id])
+  stamps        Stamp[]
+  stampRequests StampRequest[]
+
+  @@unique([phone, shopId])
+}
+
+model Stamp {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  redeemed    Boolean   @default(false)
+  redeemedAt  DateTime?
+  shopId      String
+  shop        Shop      @relation(fields: [shopId], references: [id])
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+}
+
+model StampRequest {
+  id          String    @id @default(cuid())
+  createdAt   DateTime  @default(now())
+  status      String    @default("pending")
+  resolvedAt  DateTime?
+  shopId      String
+  shop        Shop      @relation(fields: [shopId], references: [id])
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  phone       String
+  name        String?
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  name        String
+  description String?
+  price       Float
+  category    String   @default("Other")
+  available   Boolean  @default(true)
+  imageEmoji  String   @default("☕")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Offer {
+  id          String    @id @default(cuid())
+  shopId      String
+  shop        Shop      @relation(fields: [shopId], references: [id])
+  title       String
+  description String?
+  emoji       String    @default("🎉")
+  validUntil  DateTime?
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+}
+
+model WaitlistItem {
+  id        String   @id @default(cuid())
+  contact   String
+  shopId    String?
+  shop      Shop?    @relation(fields: [shopId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model PlatformWaitlist {
+  id        String   @id @default(cuid())
+  contact   String   @unique
+  createdAt DateTime @default(now())
+}
