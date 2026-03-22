@@ -111,9 +111,8 @@ Paste this (replace `yourdomain.com`):
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com www.yourdomain.com;
+    server_name brewpass.ojassolutions.com.np www.brewpass.ojassolutions.com.np;
 
-    # Max upload size for logo images
     client_max_body_size 5M;
 
     location / {
@@ -144,7 +143,8 @@ sudo systemctl restart nginx
 
 ```bash
 sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+#sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+sudo certbot --nginx -d brewpass.ojassolutions.com.np -d www.brewpass.ojassolutions.com.np
 # Follow prompts — auto-renews every 90 days
 ```
 

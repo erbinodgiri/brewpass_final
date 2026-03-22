@@ -14,7 +14,7 @@ npx prisma db push
 npm run db:seed
 npm run dev
 ```
-
+npm run build && pm2 restart brewpass
 Open http://localhost:3000
 
 ---

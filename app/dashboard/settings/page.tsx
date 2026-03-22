@@ -52,6 +52,9 @@ export default function SettingsPage() {
       setThemeColor(s.themeColor || '#e8a24b')
       setWifiForm({ wifiName: s.wifiName || '', wifiPassword: s.wifiPassword || '', wifiType: s.wifiType || 'WPA', wifiHidden: s.wifiHidden || false })
       if (s.qrCode) setQrData({ qrCode: s.qrCode, scanUrl: `${window.location.origin}/scan/${s.id}` })
+      // Auto-regenerate so QR always points to current domain
+      fetch('/api/qr').then(r => r.json()).then(d => { if (d.success) setQrData(d.data) }).catch(() => {})
+      // if (s.qrCode) setQrData({ qrCode: s.qrCode, scanUrl: `${window.location.origin}/scan/${s.id}` })
     })
   }, [])
 

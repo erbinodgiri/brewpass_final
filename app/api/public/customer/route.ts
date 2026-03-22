@@ -1,12 +1,15 @@
 // app/api/public/customer/route.ts — PUBLIC
 import { prisma } from '@/lib/prisma'
 import { err, ok } from '@/lib/api'
+import { normalizePhone } from '@/lib/phone'                             // ← CHANGED: added import
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const shopId = searchParams.get('shopId')
-  const phone = searchParams.get('phone')
-  if (!shopId || !phone) return err('shopId and phone required')
+  const rawPhone = searchParams.get('phone')                             // ← CHANGED: rawPhone
+  if (!shopId || !rawPhone) return err('shopId and phone required')
+
+  const phone = normalizePhone(rawPhone)                                 // ← CHANGED: normalize
 
   const shop = await prisma.shop.findUnique({
     where: { id: shopId },

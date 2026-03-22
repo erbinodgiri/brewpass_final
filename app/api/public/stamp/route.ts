@@ -2,10 +2,13 @@
 import { prisma } from '@/lib/prisma'
 import { err, ok } from '@/lib/api'
 import { canAddCustomer, isPlanActive, getCustomerLimit } from '@/lib/plans'
+import { normalizePhone } from '@/lib/phone'                              // ← CHANGED: added import
 
 export async function POST(req: Request) {
-  const { shopId, phone, name } = await req.json()
-  if (!shopId || !phone?.trim()) return err('Shop ID and phone required')
+  const { shopId, phone: rawPhone, name } = await req.json()             // ← CHANGED: rawPhone
+  if (!shopId || !rawPhone?.trim()) return err('Shop ID and phone required')
+
+  const phone = normalizePhone(rawPhone)                                  // ← CHANGED: normalize
 
   const shop = await prisma.shop.findUnique({
     where: { id: shopId },
@@ -21,7 +24,7 @@ export async function POST(req: Request) {
   // 10-minute cooldown — prevents duplicate spam
   const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000)
   const existingPending = await prisma.stampRequest.findFirst({
-    where: { shopId, phone: phone.trim(), status: 'pending', createdAt: { gte: tenMinutesAgo } }
+    where: { shopId, phone, status: 'pending', createdAt: { gte: tenMinutesAgo } }
   })
   if (existingPending) {
     return ok({ alreadyPending: true, message: 'You already have a pending request.' })
@@ -29,7 +32,7 @@ export async function POST(req: Request) {
 
   // Check if this is a new customer — if so, enforce the limit
   const existingCustomer = await prisma.customer.findUnique({
-    where: { phone_shopId: { phone: phone.trim(), shopId } }
+    where: { phone_shopId: { phone, shopId } }
   })
 
   if (!existingCustomer) {
@@ -46,16 +49,16 @@ export async function POST(req: Request) {
 
   // Create or update customer
   const customer = await prisma.customer.upsert({
-    where: { phone_shopId: { phone: phone.trim(), shopId } },
+    where: { phone_shopId: { phone, shopId } },
     update: name?.trim() ? { name: name.trim() } : {},
-    create: { phone: phone.trim(), name: name?.trim() || null, shopId },
+    create: { phone, name: name?.trim() || null, shopId },
   })
 
   // Create pending stamp request — NOT a stamp yet (needs staff approval)
   await prisma.stampRequest.create({
     data: {
       shopId,
-      phone: phone.trim(),
+      phone,
       name: name?.trim() || null,
       customerId: customer.id,
       status: 'pending'

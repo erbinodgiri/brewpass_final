@@ -1,12 +1,15 @@
 // app/api/public/approval/route.ts — PUBLIC polling endpoint
 import { prisma } from '@/lib/prisma'
 import { err, ok } from '@/lib/api'
+import { normalizePhone } from '@/lib/phone'
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const phone = searchParams.get('phone')
+  const rawPhone = searchParams.get('phone')
   const shopId = searchParams.get('shopId')
-  if (!phone || !shopId) return err('phone and shopId required')
+  if (!rawPhone || !shopId) return err('phone and shopId required')
+
+  const phone = normalizePhone(rawPhone)
 
   // Find most recent request for this phone at this shop
   const request = await prisma.stampRequest.findFirst({
