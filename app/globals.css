@@ -25,3 +25,5 @@ input, button, textarea, select { font-family: inherit; }
 }
 .pulse { animation: pulse 2s ease-in-out infinite; }
 .approved-in { animation: approved-bounce 0.5s ease-out forwards; }
+
+
